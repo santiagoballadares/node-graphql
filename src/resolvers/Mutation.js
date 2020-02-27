@@ -36,10 +36,42 @@ const post = (root, args, context, info) => {
   const userId = getUserId(context);
 
   return context.prisma.createLink({
-    description: args.description,
     url: args.url,
-    postedBy: {  connect: { id: userId } },
+    description: args.description,
+    postedBy: { connect: { id: userId } },
   });
+};
+
+const updateLink = async (root, args, context, info) => {
+  const userId = getUserId(context);
+  const linkExists = await context.prisma.$exists.link({ id: args.id });
+
+  if (!linkExists) {
+    throw new Error(`Cannot find link: ${args.id}`);
+  }
+
+  const data = {};
+  if (args.url) {
+    data.url = args.url;
+  }
+  if (args.description) {
+    data.description = args.description;
+  }
+  
+  const where = { id: args.id };
+
+  return context.prisma.updateLink({ data, where });
+};
+
+const deleteLink = async (root, args, context, info) => {
+  const userId = getUserId(context);
+  const linkExists = await context.prisma.$exists.link({ id: args.id });
+
+  if (!linkExists) {
+    throw new Error(`Cannot find link: ${args.id}`);
+  }
+
+  return context.prisma.deleteLink({ id: args.id });
 };
 
 const vote = async (root, args, context, info) => {
@@ -61,5 +93,7 @@ module.exports = {
   signup,
   login,
   post,
+  updateLink,
+  deleteLink,
   vote,
 };

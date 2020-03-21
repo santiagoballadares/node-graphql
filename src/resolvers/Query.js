@@ -18,7 +18,6 @@ const feed = async (root, args, context, info) => {
   const count = await context.prisma.linksConnection({
     where,
     skip: args.skip,
-    first: args.first,
   })
   .aggregate()
   .count();
